@@ -2,11 +2,11 @@ close all
 %%  Generate signals of interest 
 signalLength = 5000 ; 
 originalFilterSize = 100 ; 
-[x,d,h] = generateSignals(signalLength, originalFilterSize) ; 
+[x,d,h] = generateSignals(signalLength, originalFilterSize,0 ) ; 
 
 signalLength = 5000 ; 
-originalFilterSize1 = 200 ; 
-[x1,d1,h1] = generateSignals(signalLength, originalFilterSize) ; 
+originalFilterSize1 = 100 ; 
+[x1,d1,h1] = generateSignals(signalLength, originalFilterSize, 1) ; 
  
 figure ;
 stem(h) ; 
@@ -44,7 +44,7 @@ xlabel('Number of iterations') ;
 
 
 %% Block LMS
-blockSize = filterSize/2 ; 
+blockSize = filterSize; 
 [errorBLMS, MSerrorBLMS, timeOfConvergenceNLMSBLMS, w_BLMS]=BLMS(x,d, filterSize,blockSize, numberOfIterations)  ;
 
 

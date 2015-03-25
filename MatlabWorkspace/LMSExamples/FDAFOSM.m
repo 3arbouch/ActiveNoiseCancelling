@@ -50,7 +50,7 @@ d = filtredSignal ;
                end
      
      
-     i = i+ 1  
+     i = i+ 1  ;
  end
 
 if(timeOfConvergence==0)

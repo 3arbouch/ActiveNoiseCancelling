@@ -9,7 +9,7 @@ frameSize=1024;
 
 song=dsp.AudioFileReader('song.mp3');
 sineSweep = dsp.AudioFileReader('Sweep_10Hz_15000Hz_-3dBFS_10s.wav')   ; 
-samplingRate= 8000 ; 
+samplingRate= song.SampleRate ; 
 sine= dsp.SignalSource(0.5*sin(2*pi*f0/samplingRate.*(1:endTime*samplingRate)'), frameSize);
 
 noise=dsp.SignalSource(0.1*randn(endTime*samplingRate, 1), frameSize);
