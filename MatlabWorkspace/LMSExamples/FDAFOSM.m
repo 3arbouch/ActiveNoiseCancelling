@@ -12,7 +12,7 @@ d = filtredSignal ;
  g=[eye(filterSize),zeros(filterSize,filterSize); zeros(filterSize,filterSize), zeros(filterSize,filterSize)] ; 
  k = [zeros(filterSize, filterSize), eye(filterSize)] ; 
  alpha= 0.9; 
- mu = 1 ; 
+
  
  
  error = 0 ; 

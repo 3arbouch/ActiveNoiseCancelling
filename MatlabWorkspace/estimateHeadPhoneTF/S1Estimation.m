@@ -1,6 +1,6 @@
 close all 
 x = noiseData ; 
-d = recordings(:,1); 
+d = recordings(:,2); 
 
 figure ;
 plot(d) ;
@@ -10,24 +10,40 @@ title ('Recording data') ;
 figure ; 
 imagesc(T1,F1,log10(abs(STFT1)))
 title('MAgnitude STFT of recordings ') ;
+% Compute the corrolation 
+datacorr = xcorr(d,noiseData);
+[value, index]= max(datacorr) ;
+offset = 20 ;
+startPoint = index -length(noiseData)- offset;
 
-% x = x(44100*2:end) ; 
-d = d(44100+3200:end) ; 
+d = d(startPoint:end) ; 
 
 
 
 signalLength = length(x) ; 
-filterSize= 1024; 
+filterSize= 1024/4; 
 blockSize = filterSize ; 
 numberOfIterations = 44100*3 ;  
 %% NLMS
 [errorNLMS, MSerrorNLMS, timeOfConvergenceNLMS, w_NLMS]=NLMS(x,d, filterSize, numberOfIterations)  ;
+
+figure ; 
+semilogy(MSerrorNLMS, 'b') ;
+title ('NLMS learning curve'); 
+
+
+figure ; 
+stem(abs(w_NLMS)); 
+title ('Estimated fiter with NLMS');
+
 %% BLMS
 blockSize = filterSize; 
 [errorBLMS, MSerrorBLMS, timeOfConvergenceNLMSBLMS, w_BLMS]=BLMS(x,d, filterSize,blockSize, numberOfIterations)  ;
 %% FDAF
 numberOfIterations = numberOfIterations/filterSize -1; 
 [errorFDAF, MSerrorFDAF, timeOfConvergenceNLMSFDAF, w_FDAF]=FDAFOSM(x,d, filterSize,blockSize, numberOfIterations)  ;
+figure ;
+semilogy(MSerrorFDAF, 'k') ; 
 
 %% PLots
 

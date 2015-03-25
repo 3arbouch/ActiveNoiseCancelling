@@ -7,7 +7,7 @@ i = filterSize ;
 w = zeros(filterSize, 1) ; 
 error = 0  ; 
 MSerror = 0; 
-epsilon = 10^-10 ; 
+epsilon = 10^-6 ; 
 timeOfConvergence =0 ; 
 tic
 while(i<numberofIterations)
