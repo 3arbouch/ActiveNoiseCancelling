@@ -1,6 +1,10 @@
+% This script is used to run several experiments to estimate the headphone
+% filter 
 clear all
 close all 
-endTime=20;
+
+
+endTime=12;
 f0=7000;
 frameSize=1024;
 
@@ -11,26 +15,29 @@ sine= dsp.SignalSource(0.5*sin(2*pi*f0/song.SampleRate.*(1:endTime*song.SampleRa
 
 
 
-%% Setup MOTU
-H=dsp.AudioPlayer('DeviceName','ProFire 610','SampleRate', song.SampleRate, 'ChannelMapping', 1:3);
+%% Setup M-AUDIO
+H=dsp.AudioPlayer('DeviceName','ProFire 610','SampleRate', song.SampleRate, 'ChannelMappingSource','Property','ChannelMapping', 3);
 
 AudioInput = dsp.AudioRecorder(...
             'DeviceName', 'ProFire 610', ...
             'SampleRate', song.SampleRate, ...
-            'NumChannels', 3,...
             'OutputDataType','double',...
-            'QueueDuration', 2,...
-            'SamplesPerFrame', frameSize);
+            'QueueDuration', 1,...
+            'SamplesPerFrame', frameSize ,...
+            'ChannelMappingSource','Property',...
+            'ChannelMapping', [1 2]);
 
 
 null_signal=zeros(frameSize,1);
-recordings=zeros(1,3);
+recordings=zeros(1,2);
 tic
 while (toc<endTime)
     audio1 = step(song);
     audio2 = step(sine);
     audio3 = step(noise);
-    step(H, [audio1(:,1), audio1(:,2),  audio2(:,1)]);
+    
+    % Produce white noise in the speackers 
+    step(H,  audio3(:,1));
     
     
     multichannelAudioFrame = step(AudioInput);
@@ -50,7 +57,7 @@ release(H);  % release the audio output device
 
 
 %% Play the recording on the macbook pro speakers
-% recording=dsp.SignalSource(recordings(:,3),frameSize)
+% recording=dsp.SignalSource(recordings(:,2),frameSize)
 % H2=dsp.AudioPlayer('DeviceName','Built-in Output','SampleRate', song.SampleRate)
 % 
 % while ~isDone(recording)
@@ -66,7 +73,7 @@ release(H);  % release the audio output device
 % Reference mic
 [STFT1,F1,T1] = spectrogram(recordings(:,1),1024,512,1024,song.SampleRate);
 %Right error mic
-[STFT3,F3,T3] = spectrogram(recordings(:,3),1024,512,1024,song.SampleRate);
+% [STFT3,F3,T3] = spectrogram(recordings(:,3),1024,512,1024,song.SampleRate);
 %Left error mic
 [STFT2,F2,T2] = spectrogram(recordings(:,2),1024,512,1024,song.SampleRate);
 
@@ -76,6 +83,5 @@ imagesc(T1,F1,log10(abs(STFT1)))
 figure ; 
 imagesc(T2,F2,log10(abs(STFT2)))
 
-figure ; 
-imagesc(T3,F3,log10(abs(STFT3)))
+
 
