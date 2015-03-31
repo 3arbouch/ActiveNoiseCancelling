@@ -17,9 +17,9 @@ d = filtredSignal ;
  
  error = 0 ; 
  MSerror = 0; 
- epsilon = 10^-6 ; 
+ epsilon = 10^-10 ; 
  timeOfConvergence =0 ; 
-
+ mu = 0.9 ; 
  i=1 ; 
  tic
  while (i<numberOfIterations)
@@ -35,13 +35,13 @@ d = filtredSignal ;
             P_k = (1-alpha)*P_k + alpha*abs(diag(X_k)).^2 ; 
             P_k_inv = 1./P_k ; 
             %mu = alpha*(1/max(P_k)) ;
-            mu = 0.9 ; 
-            mu_k = mu*diag(P_k_inv) ; 
+        
+            mu_k = diag(P_k_inv) ; 
             
-            W = W +  2*fft(g*ifft(mu_k*ctranspose(X_k)*E_k)) ; 
+            W = W +  2*mu*fft(g*ifft(mu_k*ctranspose(X_k)*E_k)) ; 
             
             error = [error ; e_k] ; 
-            MSE = (error'*error)/length(error)  
+            MSE = (error'*error)/length(error)  ;
             MSerror =  [MSerror ;repmat(MSE,filterSize,1) ] ; 
             
                if(MSE < epsilon)

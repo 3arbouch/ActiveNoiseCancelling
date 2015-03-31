@@ -1,6 +1,6 @@
 close all 
 x = noiseData ; 
-d = recordings(:,2); 
+d = recordings(:,1); 
 
 figure ;
 plot(d) ;
@@ -26,24 +26,33 @@ blockSize = filterSize ;
 numberOfIterations = 44100*3 ;  
 %% NLMS
 [errorNLMS, MSerrorNLMS, timeOfConvergenceNLMS, w_NLMS]=NLMS(x,d, filterSize, numberOfIterations)  ;
-
-figure ; 
-semilogy(MSerrorNLMS, 'b') ;
-title ('NLMS learning curve'); 
-
-
-figure ; 
-stem(abs(w_NLMS)); 
-title ('Estimated fiter with NLMS');
+% 
+% figure ; 
+% semilogy(MSerrorNLMS, 'b') ;
+% title ('NLMS learning curve'); 
+% 
+% 
+% figure ; 
+% stem(abs(w_NLMS)); 
+% title ('Estimated fiter with NLMS');
 
 %% BLMS
 blockSize = filterSize; 
 [errorBLMS, MSerrorBLMS, timeOfConvergenceNLMSBLMS, w_BLMS]=BLMS(x,d, filterSize,blockSize, numberOfIterations)  ;
+% figure ; 
+% semilogy(MSerrorBLMS, 'b') ;
+% title ('NLMS learning curve'); 
+% 
+% 
+% figure ; 
+% stem(abs(w_BLMS)); 
+% title ('Estimated fiter with NLMS');
+
 %% FDAF
 numberOfIterations = numberOfIterations/filterSize -1; 
 [errorFDAF, MSerrorFDAF, timeOfConvergenceNLMSFDAF, w_FDAF]=FDAFOSM(x,d, filterSize,blockSize, numberOfIterations)  ;
-figure ;
-semilogy(MSerrorFDAF, 'k') ; 
+% figure ;
+% semilogy(MSerrorFDAF, 'k') ; 
 
 %% PLots
 
