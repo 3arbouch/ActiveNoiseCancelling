@@ -1,4 +1,6 @@
 close all
+profile on
+
 %%  Generate signals of interest 
 signalLength = 5000 ; 
 originalFilterSize = 150 ; 
@@ -98,6 +100,7 @@ title('Transfer function estimated with FDAF') ;
 
 
 
+profile viewer
 
 % %% LMS Algo
 % filterSize = 100; 

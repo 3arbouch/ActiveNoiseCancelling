@@ -11,7 +11,7 @@ d = filtredSignal ;
   P_k= ones(2*filterSize,1)  ; 
  g=[eye(filterSize),zeros(filterSize,filterSize); zeros(filterSize,filterSize), zeros(filterSize,filterSize)] ; 
  k = [zeros(filterSize, filterSize), eye(filterSize)] ; 
- alpha= 0.9; 
+ alpha= 0.3; 
 
  
  
@@ -19,26 +19,27 @@ d = filtredSignal ;
  MSerror = 0; 
  epsilon = 10^-10 ; 
  timeOfConvergence =0 ; 
- mu = 0.9 ; 
+ mu = 0.2 ; 
  i=1 ; 
  tic
  while (i<numberOfIterations)
             X_k=formX(filterSize, i, x, blockSize) ;
             
-            Y_k =X_k*W ; 
+            Y_k =X_k.*W ; 
             %Recover the last N samples correspending to linear convolution
             y_k = k*ifft(Y_k) ; 
             d_k = d(i*filterSize+1:(i+1)*filterSize) ; 
             e_k = d_k -y_k ;  
             E_k = fft(k'*e_k) ; 
             
-            P_k = (1-alpha)*P_k + alpha*abs(diag(X_k)).^2 ; 
+            P_k = (1-alpha)*P_k + alpha*abs((X_k)).^2 ; 
             P_k_inv = 1./P_k ; 
             %mu = alpha*(1/max(P_k)) ;
         
-            mu_k = diag(P_k_inv) ; 
-            
-            W = W +  2*mu*fft(g*ifft(mu_k*ctranspose(X_k)*E_k)) ; 
+            mu_k = mu *P_k_inv ; 
+            gradient = (conj(X_k).*E_k) ;
+            GRADIENT = g*ifft(mu_k.*gradient);
+            W = W +  2*fft(GRADIENT) ; 
             
             error = [error ; e_k] ; 
             MSE = (error'*error)/length(error)  ;
@@ -77,7 +78,8 @@ function [X_k] = formX( filterSize, index, data, N )
 % This function construct two chunks of data (old and new) 
 
 x_n = data(index*filterSize-filterSize+1:1:index*filterSize+filterSize) ; 
-  X_k = diag(fft((x_n))) ; 
+X_k = fft((x_n)) ;
+
  
 end
 

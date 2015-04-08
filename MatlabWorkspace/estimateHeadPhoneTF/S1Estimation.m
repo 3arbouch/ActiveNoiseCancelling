@@ -1,4 +1,6 @@
 close all 
+profile on
+
 load('Workspace.mat');
 x = noiseData ; 
 d = recordings(:,1) ;
@@ -92,3 +94,5 @@ title('Transfer function estimated with BLMS') ;
 subplot(1,3,3) ; 
 stem(w_FDAF) ; 
 title('Transfer function estimated with FDAF') ; 
+
+profile viewer
