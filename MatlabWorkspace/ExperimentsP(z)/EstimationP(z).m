@@ -1,24 +1,26 @@
 close all 
-load('Workspace.mat');
-x = noiseData ; 
-d = recordings(:,1) ;
+clear all 
+load('Experiment1.mat');
+x = recordings(:,1); 
+d = recordings(:,2) ;
 
-
+x = x(44100:end);
+d= d(44100:end);
 figure ;
 plot(d) ;
 title ('Recording data') ;
 
-[STFT1,F1,T1] = spectrogram(d,1024,512,1024,song.SampleRate);
+[STFT1,F1,T1] = spectrogram(d,1024,512,1024,44100);
 figure ; 
 imagesc(T1,F1,log10(abs(STFT1)))
 title('MAgnitude STFT of recordings ') ;
 % Compute the corrolation 
-datacorr = xcorr(d,noiseData);
-[value, index]= max(datacorr) ;
-offset = 20 ;
-startPoint = index -length(noiseData)- offset;
-
-d = d(startPoint:end) ; 
+% datacorr = xcorr(d,noiseData);
+% [value, index]= max(datacorr) ;
+% offset = 20 ;
+% startPoint = index -length(noiseData)- offset;
+% 
+% d = d(startPoint:end) ; 
 
 
 
@@ -26,20 +28,20 @@ d = d(startPoint:end) ;
 %% NLMS
 
 signalLength = length(x) ; 
-filterSize= 300; 
+filterSize= 44100; 
 blockSize = filterSize ; 
-numberOfIterations = 44100*3 ;
+numberOfIterations = 44100*5 ;
 
 [errorNLMS, MSerrorNLMS, timeOfConvergenceNLMS, w_NLMS]=NLMS(x,d, filterSize, numberOfIterations)  ;
 
-% figure ; 
-% semilogy(MSerrorNLMS, 'b') ;
-% title ('NLMS learning curve'); 
-% 
-% 
-% figure ; 
-% stem(abs(w_NLMS)); 
-% title ('Estimated fiter with NLMS');
+figure ; 
+semilogy(MSerrorNLMS, 'b') ;
+title ('NLMS learning curve'); 
+
+
+figure ; 
+stem(abs(w_NLMS)); 
+title ('Estimated fiter with NLMS');
 
 %% BLMS
 blockSize = filterSize; 
@@ -56,8 +58,8 @@ blockSize = filterSize;
 %% FDAF
 numberOfIterations = numberOfIterations/filterSize -1; 
 [errorFDAF, MSerrorFDAF, timeOfConvergenceNLMSFDAF, w_FDAF]=FDAFOSM(x,d, filterSize,blockSize, numberOfIterations)  ;
-% figure ;
-% semilogy(MSerrorFDAF, 'k') ; 
+figure ;
+semilogy(MSerrorFDAF, 'k') ; 
 
 %% PLots
 

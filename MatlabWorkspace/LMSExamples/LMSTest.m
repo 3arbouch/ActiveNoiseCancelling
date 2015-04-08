@@ -1,7 +1,7 @@
 close all
 %%  Generate signals of interest 
 signalLength = 5000 ; 
-originalFilterSize = 100 ; 
+originalFilterSize = 150 ; 
 [x,d,h] = generateSignals(signalLength, originalFilterSize,0 ) ; 
 
 signalLength = 5000 ; 
@@ -22,22 +22,22 @@ numberOfIterations = signalLength - filterSize ;
 
 %% NLMS 
 [errorNLMS, MSerrorNLMS, timeOfConvergenceNLMS, w_NLMS]=NLMS(x,d, filterSize, numberOfIterations)  ;
-[errorNLMS1, MSerrorNLMS1, timeOfConvergenceNLMS1, w_NLMS1]=NLMS(x1,d1, filterSize1, numberOfIterations)  ;
+% [errorNLMS1, MSerrorNLMS1, timeOfConvergenceNLMS1, w_NLMS1]=NLMS(x1,d1, filterSize1, numberOfIterations)  ;
 
-figure ; 
-semilogy(MSerrorNLMS, 'b') ;
-hold on 
-semilogy(MSerrorNLMS1, 'r') ; 
-legend('Filter Lenght= 100', 'Filter Lenght= 200')
-title ('Learning curve  of NLMS for different filter Sizes') ;
-ylabel('MSE') ; 
-xlabel('Number of samples processed') ;
-
-figure ; 
-plot(errorNLMS, 'b') ; 
-title('NLMS Error for filter Size 100') ; 
-ylabel('Error') ; 
-xlabel('Number of iterations') ;
+% figure ; 
+% semilogy(MSerrorNLMS, 'b') ;
+% hold on 
+% semilogy(MSerrorNLMS1, 'r') ; 
+% legend('Filter Lenght= 100', 'Filter Lenght= 200')
+% title ('Learning curve  of NLMS for different filter Sizes') ;
+% ylabel('MSE') ; 
+% xlabel('Number of samples processed') ;
+% 
+% figure ; 
+% plot(errorNLMS, 'b') ; 
+% title('NLMS Error for filter Size 100') ; 
+% ylabel('Error') ; 
+% xlabel('Number of iterations') ;
 
 
 

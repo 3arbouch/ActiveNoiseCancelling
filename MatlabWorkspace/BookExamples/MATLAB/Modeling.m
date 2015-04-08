@@ -28,7 +28,7 @@ mu=Misad/(N*(h'*h));
 a=input('\n Do you wish to see the values of \n      eigenvalue spread, expected MSE, ... (Y/N)?      ','s');
 if (a=='y')|(a=='Y')
    MMSE=sigman2;
-   R=corlnm2(h,N);
+   %R=corlnm2(h,N);
    lambda=eig(R);
    eignsprd=max(lambda)/min(lambda);
    taumax=1/(4*mu*min(lambda));

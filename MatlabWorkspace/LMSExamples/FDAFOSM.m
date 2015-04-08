@@ -44,10 +44,10 @@ d = filtredSignal ;
             MSE = (error'*error)/length(error)  ;
             MSerror =  [MSerror ;repmat(MSE,filterSize,1) ] ; 
             
-               if(MSE < epsilon)
-                  timeOfConvergence = toc ;  
-                  break ; 
-               end
+%                if(MSE < epsilon)
+%                   timeOfConvergence = toc ;  
+%                   
+%                end
      
      
      i = i+ 1  ;

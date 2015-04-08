@@ -7,7 +7,7 @@ i = filterSize ;
 w = zeros(filterSize, 1) ; 
 error = 0  ; 
 MSerror = 0; 
-epsilon = 10^-6 ; 
+epsilon = 10^-8 ; 
 timeOfConvergence =0 ; 
 tic
 while(i<numberofIterations)
@@ -18,9 +18,10 @@ while(i<numberofIterations)
               error = [error; e] ;
               MSE = (error'*error)/length(error)   ; 
               MSerror =  [MSerror ;MSE ] ; 
-               if(MSE < epsilon)
-                  timeOfConvergence = toc ;  
-               end
+%                if(MSE < epsilon)
+%                   timeOfConvergence = toc ;  
+%                   break ;
+%                end
               
               
                

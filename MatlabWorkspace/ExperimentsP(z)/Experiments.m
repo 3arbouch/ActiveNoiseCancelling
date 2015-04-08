@@ -4,7 +4,7 @@ clear all
 close all 
 
 
-endTime=12;
+endTime=20;
 f0=7000;
 frameSize=1024;
 
@@ -22,7 +22,7 @@ AudioInput = dsp.AudioRecorder(...
             'DeviceName', 'ProFire 610', ...
             'SampleRate', song.SampleRate, ...
             'OutputDataType','double',...
-            'QueueDuration', 1,...
+            'QueueDuration', 0,...
             'SamplesPerFrame', frameSize ,...
             'ChannelMappingSource','Property',...
             'ChannelMapping', [1 2]);
@@ -37,11 +37,11 @@ while (toc<endTime)
     audio3 = step(noise);
     
     % Produce white noise in the speackers 
-    step(H,  audio3(:,1));
+    step(H,  audio1(:,1));
     
     
-    multichannelAudioFrame = step(AudioInput);
-    recordings=[recordings;multichannelAudioFrame];
+%     multichannelAudioFrame = step(AudioInput);
+%     recordings=[recordings;multichannelAudioFrame];
    
 
 end
