@@ -5,7 +5,7 @@ function [ x,d,h ] = generateSignals( signalLength, originalFilterSize, colored 
 % return the reference Signal x, the filtred version of x d and the filter
 % h
 [h,~,~]=fircband(originalFilterSize,[0 0.4 0.5 1], [1 1 0 0], [1 0.2],{'w' 'c'});
-
+h = ones(100,1)/100 ;
 if(colored)
    A = [1 -0.9];
     x = 0.25*randn(signalLength,1);

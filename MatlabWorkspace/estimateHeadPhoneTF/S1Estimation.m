@@ -5,6 +5,7 @@ load('Workspace.mat');
 x = noiseData ; 
 d = recordings(:,1) ;
 
+convergenceThreshold = 10^-4;
 
 figure ;
 plot(d) ;
@@ -28,24 +29,15 @@ d = d(startPoint:end) ;
 %% NLMS
 
 signalLength = length(x) ; 
-filterSize= 300; 
+filterSize= 200; 
 blockSize = filterSize ; 
-numberOfIterations = 44100*3 ;
+numberOfIterations = 44100*5 ;
 
-[errorNLMS, MSerrorNLMS, timeOfConvergenceNLMS, w_NLMS]=NLMS(x,d, filterSize, numberOfIterations)  ;
-
-% figure ; 
-% semilogy(MSerrorNLMS, 'b') ;
-% title ('NLMS learning curve'); 
-% 
-% 
-% figure ; 
-% stem(abs(w_NLMS)); 
-% title ('Estimated fiter with NLMS');
+[errorNLMS, MSerrorNLMS, timeOfConvergenceNLMS,timeOfComputationNLMS,  w_NLMS]=NLMS(x,d, filterSize, numberOfIterations, convergenceThreshold)  ;
 
 %% BLMS
 blockSize = filterSize; 
-[errorBLMS, MSerrorBLMS, timeOfConvergenceNLMSBLMS, w_BLMS]=BLMS(x,d, filterSize,blockSize, numberOfIterations)  ;
+[errorBLMS, MSerrorBLMS, timeOfConvergenceNLMSBLMS,timeOfComputationBLMS,  w_BLMS]=BLMS(x,d, filterSize,blockSize, numberOfIterations, convergenceThreshold)  ;
 % figure ; 
 % semilogy(MSerrorBLMS, 'b') ;
 % title ('NLMS learning curve'); 
@@ -56,14 +48,16 @@ blockSize = filterSize;
 % title ('Estimated fiter with NLMS');
 
 %% FDAF
-numberOfIterations = numberOfIterations/filterSize -1; 
-[errorFDAF, MSerrorFDAF, timeOfConvergenceNLMSFDAF, w_FDAF]=FDAFOSM(x,d, filterSize,blockSize, numberOfIterations)  ;
-% figure ;
-% semilogy(MSerrorFDAF, 'k') ; 
+numberOfIterationsF = numberOfIterations/filterSize -1; 
+[errorFDAF, MSerrorFDAF, timeOfConvergenceNLMSFDAF,timeOfComputationFDAF, w_FDAF]=FDAFOSM(x,d, filterSize,blockSize, numberOfIterationsF, convergenceThreshold)  ;
+[errorFDAFCC, MSerrorFDAFCC, timeOfConvergenceNLMSFDAFCC,timeOfComputationFDAFCC, w_FDAFCC]=FDAFCC(x,d, filterSize,blockSize, numberOfIterationsF, convergenceThreshold)  ;
+
+
 
 %% PLots
 
-
+figure ;
+plot(errorFDAF);
 
 figure ; 
 semilogy(MSerrorBLMS, 'b') ;
@@ -71,28 +65,42 @@ hold on
 semilogy(MSerrorNLMS, 'r') ; 
 hold on 
 semilogy(MSerrorFDAF, 'k') ; 
+hold on 
+semilogy(MSerrorFDAFCC, 'g') ; 
+hold on 
+y = convergenceThreshold*ones(numberOfIterations,1);
+semilogy(y, 'm');
+
 
 title ('Learning curces for NLMS and BLMS') ; 
-legend ('Learning curve of BLMS','Learning curve of NLMS', 'Learning curve of FDAF') ; 
+legend ('Learning curve of BLMS','Learning curve of NLMS', 'Learning curve of FDAF', 'Learning curve of FDAFCC') ; 
 ylabel('MSE') ; 
 xlabel('Number of samples processed') ;
 
 
 
 figure  ; 
-bar([timeOfConvergenceNLMS, timeOfConvergenceNLMSBLMS, timeOfConvergenceNLMSFDAF]) ; 
-title ('Time of computations for different Algorthims')
+bar([ timeOfComputationNLMS ;  timeOfComputationBLMS ;  timeOfComputationFDAF ;  timeOfComputationFDAFCC], 0.5, 'r') ; 
+title ('Time of computation  for different Algorthims')
 
+figure  ; 
+bar([timeOfConvergenceNLMS  ; timeOfConvergenceNLMSBLMS  ; timeOfConvergenceNLMSFDAF  ; timeOfConvergenceNLMSFDAFCC ], 0.5, 'y') ; 
+title ('Time of convergence  for different Algorthims')
 
 figure ; 
-subplot(1,3,1) ; 
+subplot(2,2,1) ; 
 stem(w_NLMS) ; 
 title('Transfer function estimated with NLMS') ; 
-subplot(1,3,2); 
+subplot(2,2,2); 
 stem(w_BLMS) ; 
 title('Transfer function estimated with BLMS') ; 
-subplot(1,3,3) ; 
+subplot(2,2,3) ; 
 stem(w_FDAF) ; 
 title('Transfer function estimated with FDAF') ; 
 
+subplot(2,2,4) ; 
+stem(w_FDAFCC) ; 
+title('Transfer function estimated with FDAFCC') ; 
+
+profile off 
 profile viewer

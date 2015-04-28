@@ -1,6 +1,6 @@
-function [ error , MSerror, timeOfConvergence , w] = BLMS( referenceSignal, filtredSignal, filterSize,blockSize,  numberOfIterations )
+function [ error , MSerror, timeOfConvergence , timeOfComputation, w] = BLMS( referenceSignal, filtredSignal, filterSize,blockSize,  numberOfIterations, convergenceThreshold )
 % This function implements The Block LMS
-
+tic
 x = referenceSignal ; 
 d = filtredSignal ; 
 
@@ -9,32 +9,39 @@ d = filtredSignal ;
  w = zeros(filterSize, 1) ;
  error = 0 ; 
  MSerror = 0; 
- epsilon = 10^-7 ; 
- timeOfConvergence =0 ; 
- tic
+ 
+tstart = tic;
+converged = 0 ;
  while (i<numberOfIterations)
             [x_matrix, autocorrX]=formX(filterSize, i, x, blockSize) ;
             % E=eig(autocorrX)  
-             F = fft(autocorrX);
-%            mu =alpha* (blockSize/(trace(autocorrX))) ;
-             mu = 1/max(max((abs(F))));
+           %  F = fft(autocorrX);
+            mu =alpha* (blockSize/(trace(autocorrX))) ;
+             %mu = 1/max(max((abs(F))));
              e = d(i:i + blockSize -1)-x_matrix*w   ;   
              error = [error ; e] ; 
 %             w = w + 2*mu*(1/blockSize)*x_matrix'*e  ;  
              w = w + 2*mu*((1/blockSize)*x_matrix'*d(i:i + blockSize -1)-autocorrX*w)  ; 
              MSE = (error'*error)/length(error) ; 
              MSerror =  [MSerror ;repmat(MSE,blockSize,1) ] ; 
-%                if(MSE < epsilon)
-%                   timeOfConvergence = toc ;  
-%                end
-%      
+               if(~converged &&  MSE < convergenceThreshold && i> filterSize +1000)
+                 timeOfConvergence = toc(tstart) ;  
+                  converged = 1;
+                  w_convergence = w ; 
+               end
+     
      
      i = i+ blockSize ; 
  end
-
-if(timeOfConvergence==0)
-    timeOfConvergence = toc ; 
-end
+ 
+timeOfComputation = toc ; 
+ if(~converged)
+      timeOfConvergence = toc(tstart) ;  
+      
+ else 
+     w = w_convergence ;
+ 
+ end
            
 
 end

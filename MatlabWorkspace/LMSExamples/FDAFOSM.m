@@ -1,7 +1,7 @@
-function [ error, MSerror, timeOfConvergence, w ] = FDAFOSM( referenceSignal, filtredSignal, filterSize,blockSize,  numberOfIterations )
+function [ error, MSerror, timeOfConvergence,timeOfComputation,  w ] = FDAFOSM( referenceSignal, filtredSignal, filterSize,blockSize,  numberOfIterations, convergenceThreshold )
 % FDADOVM is the implementation of the FDAF algorithm based on the overlap
-% save sectionning
-
+% save sectionning method 
+ tic
 x = referenceSignal ; 
 d = filtredSignal ; 
 
@@ -17,11 +17,11 @@ d = filtredSignal ;
  
  error = 0 ; 
  MSerror = 0; 
- epsilon = 10^-10 ; 
  timeOfConvergence =0 ; 
  mu = 0.2 ; 
  i=1 ; 
- tic
+ tstart = tic;
+converged = 0 ;
  while (i<numberOfIterations)
             X_k=formX(filterSize, i, x, blockSize) ;
             
@@ -43,24 +43,29 @@ d = filtredSignal ;
             
             error = [error ; e_k] ; 
             MSE = (error'*error)/length(error)  ;
-            MSerror =  [MSerror ;repmat(MSE,filterSize,1) ] ; 
-            
-%                if(MSE < epsilon)
-%                   timeOfConvergence = toc ;  
-%                   
-%                end
+             MSerror =  [MSerror ;repmat(MSE,filterSize,1) ] ; 
+          %  MSerror =  [MSerror ;MSE ] ; 
+
+               if(~converged && MSE < convergenceThreshold && i>5)
+                 timeOfConvergence = toc(tstart) ;  
+                  converged = 1;
+                  W_convergence = W ;
+               end
      
      
      i = i+ 1  ;
  end
 
-if(timeOfConvergence==0)
-    timeOfConvergence = toc ; 
-end
+timeOfComputation = toc ; 
+ if(~converged)
+      timeOfConvergence = toc(tstart) ; 
+        w = ifft(W) ; 
+ else 
+     w = ifft(W_convergence) ;
+ end
            
-
-w = ifft(W) ; 
 w= w(1:filterSize) ; 
+
 
 
 end
