@@ -10,7 +10,6 @@ w = zeros(filterSize, 1) ;
 % error = zeros(NI, 1) ;
  MSerror = zeros(NI- i, 1) ;
 error = 0 ;
-epsilon = 0.5*10^-4 ; 
 tstart = tic;
 converged = 0 ;
 
