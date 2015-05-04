@@ -1,0 +1,14 @@
+/* Shader for blitting of the luminance channel (red channel):
+ * (w)2006 by Mario Kleiner. Licensed under MIT license.
+ */
+
+#extension GL_ARB_texture_rectangle : enable
+
+uniform sampler2DRect Image;
+
+void main()
+{
+    vec4 incolor = texture2DRect(Image, gl_TexCoord[0].st);
+    gl_FragColor.a = incolor.a;
+    gl_FragColor.rgb = incolor.r;
+}

@@ -1,0 +1,41 @@
+/* Generic 2D convolution fragment shader for 2D rectangle textures.
+// OpenGL program has to setup the texture unit 'Kernel' with a lookup
+// table texture for the coefficients of the convolution kernel and bind
+// texture unit 'Image' with the image to be convoluted. Texture filtering
+// mode needs to be GL_NEAREST for defined results! The half width of the
+// convolution kernel needs to be provided in the uniform 'KernelHalfWidthX'
+// and 'KernelHalfWidthY' for x and y half-width.
+//
+// Please note that it is more efficient to provide the convolution kernel
+// in an array of uniforms or compiled into the shader. This is less flexible
+// as it doesn't allow to change kernels on the fly and it only works for a
+// rather limited kernel size of say 15 by 15 on Geforce 7000 class hardware,
+// but it is significantly faster if it can be used.
+//
+// (w)2006 by Mario Kleiner. Licensed under MIT license.
+*/
+
+#extension GL_ARB_texture_rectangle : enable
+
+uniform float KernelHalfWidthX;
+uniform float KernelHalfWidthY;
+uniform sampler2DRect Image;
+uniform sampler2DRect Kernel;
+
+void main()
+{
+    float dx, dy;
+    vec4 sum = vec4(0.0);
+    vec4 tmp;
+    float kernelvalue;
+
+    for (dy = -KernelHalfWidthY; dy <= KernelHalfWidthY; dy++) {
+        for (dx = -KernelHalfWidthX; dx <= KernelHalfWidthX; dx++) {
+            kernelvalue = texture2DRect(Kernel, vec2(dx + KernelHalfWidthX, dy + KernelHalfWidthY)).r;
+            tmp = texture2DRect(Image, gl_TexCoord[0].st + vec2(dx, dy));
+            sum += tmp * kernelvalue;
+        }
+    }
+
+    gl_FragColor = sum;
+}

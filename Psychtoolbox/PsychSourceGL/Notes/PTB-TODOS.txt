@@ -1,0 +1,25 @@
+Need:
+
+- Linux: kernel update (lowlat), openALdev, otherdev, manpages...
+
+Do:
+
+* FBO multisampling?					--> 0.50 T --> MPI
+* PseudoGray / VideoAttenuator Shader?			--> 0.50 T
+
+* Movie playback engine for Linux?			--> 1.00 T --> Low Prio.
+
+* FFT for Imaging Pipeline ==> CUDA interface?		--> ? T    --> Lowprio.
+* Convolutionshader for IP finalizen?			--> 0.5 T  --> Lowprio.
+* Bits++ T-Lock blitter verbessern, FE-Goggle-Driver?	--> 0.5 T
+
+* Wiki documentation updates? Tutorial writing?		--> 1+x T
+* PTB Paper?						--> >> 5 T
+
+* GPGPU stuff: GVF, missin plugins, SVM, etc.		--> 2	T --> Lowprio.
+
+* OBJLoader verbessern: Multi-mesh loader und .mtl handling.
+* moglmorpher -- Multiobjekt faehig machen.
+* Std.renderer fuer rigide objekte instead of moglmorpher & ein gute Demo?
+
+* BVL display undistortion -- setup code fertigstellen, Beziercalib verbessern.

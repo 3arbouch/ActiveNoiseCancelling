@@ -1,0 +1,21 @@
+/* Shader for gamma correction of RGBA textures.
+ * Uses standard formula for gamma correction.
+ * 'Gamma' is the factor to apply, ie. the inverse gamma 1/G
+ * if applying correction for a display with gamma G.
+ *
+ * This is just a wrapper around icmTransformColor(), so it can be used
+ * outside the imaging pipe, e.g., in Screen('TransformTexture') etc...
+ * (w)2008 by Mario Kleiner. Licensed under MIT license.
+*/
+
+#extension GL_ARB_texture_rectangle : enable
+
+uniform sampler2DRect Image;
+
+vec4 icmTransformColor(vec4 incolor);
+
+void main()
+{
+    /* Retrieve RGBA input texel, gamma-map and clamp, return as output: */
+    gl_FragColor = icmTransformColor(texture2DRect(Image, gl_TexCoord[0].st));
+}

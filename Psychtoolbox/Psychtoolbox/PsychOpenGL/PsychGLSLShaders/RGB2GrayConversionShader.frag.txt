@@ -1,0 +1,17 @@
+/* Shader for conversion of RGB textures into Grayscale textures.
+ * Uses standard formula for conversion:
+ * (w)2006 by Mario Kleiner. Licensed under MIT license.
+*/
+
+#extension GL_ARB_texture_rectangle : enable
+
+const vec3 ColorToGrayWeights = vec3(0.3, 0.59, 0.11); 
+uniform sampler2DRect Image;
+
+void main()
+{
+    vec4 incolor = texture2DRect(Image, gl_TexCoord[0].st);
+    float luminance = dot(incolor.rgb, ColorToGrayWeights);
+    gl_FragColor.a = incolor.a;
+    gl_FragColor.rgb = vec3(luminance);
+}
