@@ -15,7 +15,7 @@ close all
    dev =   3;
 
 %set the sampling rate to be used
-   fs  =   96000;
+   fs  =   44100;
 
 %set the length of the test-signal to be used
    sig_len = 20;
@@ -37,7 +37,7 @@ close all
    sweep   =   sin(K*(exp(t/L) - 1));
    
    f0 = 3000 ;
-   f1 = 4000 ;
+   f1 = 10000 ;
    endTime = 20;
    sine= 0.5*sin(2*pi*f0/fs.*(1:endTime*fs)');
    sine2= 0.5*sin(2*pi*f1/fs.*(1:endTime*fs)');
@@ -49,7 +49,18 @@ close all
    % THE OUTPUTS VIA SYSTEM-VOLUME OR SOMETHING LIKE THAT!!!!
    output_sweep        =   0.50*sweep;
    %output_sweep        =   0.0.*sweep;
+   
+   noise=0.25*randn(endTime*fs,1) ;
+
     
+[signal,fs]=audioread('song.mp3');
+signal = signal(:,1);
+signal = signal';
+signal = noise' ;
+buffer(1) = PsychPortAudio('CreateBuffer', [], zeros(1,20*fs));
+buffer(2) = PsychPortAudio('CreateBuffer', [], signal(1:fs/2));   
+
+
 
 %%%% end of seep-generation %%%%
 
@@ -64,29 +75,35 @@ close all
 % reqlatencyclass 3 == most aggressive for audio device
 % AFTER FS: [1,5] defines: 1 output, 5 inputs
    
+    silence = zeros(1,5*fs);
    
-   minimumAmountOfDataSec= frameSize/fs ; 
    i=1 ;
    bufferSize = 1 ;
    frameSizeSeconds = 0.5 ;
    frameSize = frameSizeSeconds*fs;
    pahandle    =   PsychPortAudio('Open', dev, 3,3,fs,[1 1],[],[],[],1);
-   PsychPortAudio('FillBuffer', pahandle, sine(1:fs/2));
-   PsychPortAudio('GetAudioData', pahandle ,bufferSize);
-   PsychPortAudio('Start', pahandle, [],[],[1],[],[]);
+   PsychPortAudio('FillBuffer', pahandle, buffer(1));
+    PsychPortAudio('GetAudioData', pahandle ,bufferSize);
+   PsychPortAudio('Start', pahandle, 0, [], 1);
    %status = PsychPortAudio('GetStatus', pahandle);
     
    completeSignal = 0 ;
    tic
-   while(toc< 15)
-     [signal]    =   PsychPortAudio('GetAudioData', pahandle ,[],[frameSizeSeconds],[frameSizeSeconds],[]);
-     completeSignal = [completeSignal,signal] ;
-     [STFT1,F1,T1] = spectrogram(signal,frameSize,frameSize/2,frameSize,fs);
+   nextSampleStartIndex= 4000;
+   while(nextSampleStartIndex + fs/2 -1< length(output_sweep))
+      s = signal(nextSampleStartIndex:nextSampleStartIndex+fs/2 -1);
+      PsychPortAudio('RefillBuffer', pahandle, [], s, nextSampleStartIndex);
+      [recordedSignal]    =   PsychPortAudio('GetAudioData', pahandle ,[],[frameSizeSeconds],[frameSizeSeconds],[]);
+      completeSignal = [completeSignal,recordedSignal] ;
+      [STFT1,F1,T1] = spectrogram(recordedSignal,frameSize,frameSize/2,frameSize,fs);
       imagesc(T1,F1,log10(abs(STFT1)))
-     drawnow
-     PsychPortAudio('FillBuffer', pahandle, sine2(1:fs/2),[1],[]);
+      drawnow
+     %[underflow, nextSampleStartIndex, nextSampleETASecs]=PsychPortAudio('FillBuffer', pahandle, buffer(2),2,nextSampleStartIndex);
+    
 
-    % WaitSecs(frameSizeSeconds)
+%      PsychPortAudio('RefillBuffer', pahandle, [], buffer(2));
+     nextSampleStartIndex = nextSampleStartIndex +fs/2 ;
+%      buffer(2) = PsychPortAudio('CreateBuffer', [], signal(nextSampleStartIndex:nextSampleStartIndex+fs/2 -1));
    end
 %    PsychPortAudio('Stop', pahandle);
 %     [signal]    =   PsychPortAudio('GetAudioData', pahandle ,[],[],[]);
@@ -117,7 +134,7 @@ close all
 %    stem(IR(:,ind));
    
    
-%    figure; 
-%    plot(output_sweep)
-%    hold on 
-%    plot(signal(:,1))
+   figure; 
+   plot(signal)
+   hold on 
+   plot(completeSignal)

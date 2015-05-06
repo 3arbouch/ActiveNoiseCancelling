@@ -1,4 +1,4 @@
-function BasicSoundScheduleDemo(wavfilenames)
+ function BasicSoundScheduleDemo(wavfilenames)
 % BasicSoundScheduleDemo([wavfilenames])
 %
 % This demo shows two things:
@@ -147,7 +147,7 @@ pahandle = PsychPortAudio('Open', [], [], 1, freq, nrchannels);
 % For the fun of demoing this as well, we switch PsychPortAudio to runMode
 % 1, instead of the default runMode 0. This will slightly increase the cpu
 % load and general system load, but provide better timing and even lower
-% sound onset latencies under certain conditions. It is not really needed
+% sound onset latencies under certai n conditions. It is not really needed
 % in this demo, just here to grab your attention for this feature. Type
 % PsychPortAudio RunMode? for more details...
 runMode = 1;
