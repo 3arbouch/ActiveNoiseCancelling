@@ -113,6 +113,7 @@ if voicetrigger > 0
         
     % Initialize our recordedaudio vector with captured data starting from
     % triggersample:
+   
     recordedaudio = audiodata(:, idx:end);
     
     % For the fun of it, calculate signal onset time in the GetSecs time:

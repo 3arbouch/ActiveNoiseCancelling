@@ -130,7 +130,6 @@ buffer(2) = PsychPortAudio('CreateBuffer', [], signal(1:fs/2));
        x = signal(nextSampleStartIndex:nextSampleStartIndex+fs/2 -1);
        PsychPortAudio('RefillBuffer', pahandle, [], x, indexRefillBuffer);
        d =   PsychPortAudio('GetAudioData', pahandle ,[],frameSizeSeconds,frameSizeSeconds,[]);
-       completeSignal = [completeSignal,d];
        nextSampleStartIndex = nextSampleStartIndex +fs/2 ;
        indexRefillBuffer = indexRefillBuffer + fs/2 ;
    end
