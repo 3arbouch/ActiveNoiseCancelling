@@ -15,7 +15,9 @@
 %       microphone
 % 
 
-%% Initialization of the device and the signals: Generate ans Save signals for estimation of S1(z) and S2(z)
+close all 
+clear all
+%% Initialization of the device and the signals: Generate and Save signals for estimation of S1(z) and S2(z)
 
 
 InitializePsychSound
@@ -31,6 +33,8 @@ InitializePsychSound
 %set the sampling rate to be used
    fs  =   44100;
    
+   
+   
 %set the length of the played signal
     endTime = 10 ;
    
@@ -39,8 +43,11 @@ InitializePsychSound
    noise = noise';
    
  % Create the buffer with the white noise  
- 
- buffer = PsychPortAudio('CreateBuffer', [], noise);
+ silence = zeros(1,length(noise));
+
+ buffer = PsychPortAudio('CreateBuffer', [], [noise;silence]);
+  
+
  
  % set the buffer size for the recordings
    bufferSize = 1 ;
@@ -50,7 +57,7 @@ InitializePsychSound
 
  
  % Open and start the device
- pahandle    =   PsychPortAudio('Open', dev, 3,3,fs,[1 2],[],[],[],1);
+ pahandle    =   PsychPortAudio('Open', dev, 3,3,fs,[2 2],[],[],[],1);
  PsychPortAudio('FillBuffer', pahandle, buffer);
  PsychPortAudio('GetAudioData', pahandle ,bufferSize);
  PsychPortAudio('Start', pahandle, 0, [], 1);
@@ -88,7 +95,7 @@ InitializePsychSound
     
    completeSignal = recordedaudio ;
    counter = length(recordedaudio);
-   tic
+   
    while(counter< length(noise))
        
        d =   PsychPortAudio('GetAudioData', pahandle ,[],frameSizeSeconds,frameSizeSeconds,[]);
@@ -117,6 +124,75 @@ save('referenceMicSignal','referenceMic');
 save('errorMicSignal','errorMic');
 
 
-%% 
+%% Initialization of the device and the signals: Generate ans Save signals for estimation of P(z)
     
+ pahandle    =   PsychPortAudio('Open', dev, 3,3,fs,[2 2],[],[],[],1);
+ 
+ silence = zeros(1,length(noise));
+ buffer = PsychPortAudio('CreateBuffer', [], [silence;noise]);
+ 
+ 
+ PsychPortAudio('FillBuffer', pahandle, buffer);
+ PsychPortAudio('GetAudioData', pahandle ,bufferSize);
+ PsychPortAudio('Start', pahandle, 0, [], 1);
+ 
+ 
+ % Set the level and threshold  
+   level = 0 ;
+   voicetrigger = 10^-2; 
+   
+    while level < voicetrigger
+        % Fetch current audiodata:
+        [audiodata, ~ ,~ ,~] = PsychPortAudio('GetAudioData', pahandle);
 
+        % Compute maximum signal amplitude in this chunk of data:
+        if ~isempty(audiodata)
+            level = max(abs(audiodata(1,:)));
+        else
+            level = 0;
+        end
+        
+        % Below trigger-threshold?
+        if level < voicetrigger
+            % Wait for a millisecond before next scan:
+            WaitSecs(0.00001);
+        end
+    end
+
+    % Ok, last fetched chunk was above threshold!
+    % Find exact location of first above threshold sample.
+    idx = min(find(abs(audiodata(1,:)) >= voicetrigger)); %#ok<MXFND>
+        
+    % Initialize our recordedaudio vector with captured data starting from
+    % triggersample:
+     offset = 5;
+    recordedaudio = audiodata(:, idx-offset:end);
+    
+   completeSignal = recordedaudio ;
+   counter = length(recordedaudio);
+   tic
+   while(counter< length(noise))
+       
+       d =   PsychPortAudio('GetAudioData', pahandle ,[],frameSizeSeconds,frameSizeSeconds,[]);
+       completeSignal = [completeSignal,d];
+       counter = counter + frameSizeSeconds*fs ; 
+       
+   end
+
+    PsychPortAudio('Close');
+%% Plots 
+    figure  ;
+    plot(noise);
+    hold on ;
+    plot(completeSignal(2,:));
+    hold on 
+    plot(completeSignal(1,:));
+ 
+%% Save the experiments     
+referenceMic = completeSignal(1,:);
+errorMic = completeSignal(2,:);
+save('referenceMicSignalPrime','referenceMic');
+save('errorMicSignalPrime','errorMic');
+
+
+%% Put all the recorded signals  
