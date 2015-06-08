@@ -6,7 +6,7 @@ function [ x,d,h ] = generateSignals( signalLength, originalFilterSize, colored 
 % h
 [h,~,~]=fircband(originalFilterSize,[0 0.4 0.5 1], [1 1 0 0], [1 0.2],{'w' 'c'});
 % Moving average filter
-h = ones(100,1)/100 ;
+ h = ones(originalFilterSize,1)/originalFilterSize ;
 if(colored)
    A = [1 -0.9];
     x = 0.25*randn(signalLength,1);
@@ -14,6 +14,9 @@ if(colored)
 else
      x = 0.25*randn(signalLength,1);
 end
+
+
+
 
  x = x-mean(x) ; 
  d = filter(h,1,x);

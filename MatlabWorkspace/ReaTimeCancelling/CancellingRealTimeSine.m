@@ -10,13 +10,15 @@ clear all
 %% Initialization
    InitializePsychSound
    
-   data = load('experiment30Filters');
+   data = load('experiment33Filters(1024)');
+   h = firpm(1000, [0 0.001 0.005 1], [0 0 1 1]);
+
 %% 
 %search for audio playback and recording devices
    devices = PsychPortAudio('GetDevices' );
    
 % time of processing
-timeOfProcessing = 15 ;
+timeOfProcessing = 30 ;
  
 %select the connected device (M-Audio)
    dev =   3;
@@ -42,25 +44,27 @@ sine= 0.5*sin(2*pi*f0/fs.*(1:sineTime*fs)');
  % Create the buffer with the white noise  
 silence = zeros(1,2*fs);
 NoiseTime = length(music)-length(silence) ;
-f0 = 400;
+f0 = 800;
 sineNoise= 0.7*sin(2*pi*f0/fs.*(1:NoiseTime)');
 sineNoise = sineNoise';
 sineNoise = [silence, sineNoise];
- buffer = PsychPortAudio('CreateBuffer', [], [music;sineNoise]);
+
+ silence = zeros(1,length(music));
+ buffer = PsychPortAudio('CreateBuffer', [], [silence;silence;sineNoise;music]);
   
-filterSize = 1024 ; 
+ 
  
  % set the buffer size for the recordings
-   bufferSize = 10 ;
+   bufferSize = 30 ;
    
  % Set the ize of the frame of the recording in seconds
     %frameSizeSeconds = ((filterSize/16)/fs) ;
     
 
-   frameSizeSeconds = 8;
+   frameSizeSeconds = 15;
  
  % Open and start the device
- pahandle    =   PsychPortAudio('Open', dev, 3,3,fs,[2 2],[],[],[],1);
+ pahandle    =   PsychPortAudio('Open', dev, 3,3,fs,[4 4],[],[],[],1);
  PsychPortAudio('FillBuffer', pahandle, buffer);
  PsychPortAudio('GetAudioData', pahandle ,bufferSize);
  PsychPortAudio('Start', pahandle, 0, [], 1);
@@ -75,7 +79,7 @@ filterSize = 1024 ;
 
         % Compute maximum signal amplitude in this chunk of data:
         if ~isempty(audiodata)
-            level = max(abs(audiodata(2,:)));
+            level = max(abs(audiodata(3,:)));
         else
             level = 0;
         end
@@ -83,13 +87,13 @@ filterSize = 1024 ;
         % Below trigger-threshold?
         if level < voicetrigger
             % Wait for a millisecond before next scan:
-            WaitSecs(0.001);
+            WaitSecs(0.00001);
         end
     end
 
     % Ok, last fetched chunk was above threshold!
     % Find exact location of first above threshold sample.
-    idx = min(find(abs(audiodata(2,:)) >= voicetrigger)); %#ok<MXFND>
+    idx = min(find(abs(audiodata(3,:)) >= voicetrigger)); %#ok<MXFND>
         
     % Initialize our recordedaudio vector with captured data starting from
     % triggersample:
@@ -105,44 +109,29 @@ filterSize = 1024 ;
    counter = length(recordedaudio);
    totalCancelledSignal  = 0 ;
    i =0 ;
-   indexRefillBuffer= 1;
-   tic
-   silenceVector1 = sineNoise(1:length(recordedaudio)+frameSizeSeconds*fs);
   
-   while(toc< timeOfProcessing)
      
        d =   PsychPortAudio('GetAudioData', pahandle ,[],frameSizeSeconds,frameSizeSeconds,[]);
        
-       if(i==0)
+      
           portion = music(1:length(recordedaudio)+length(d));
           cancellerSignal = filter(data.S1,1,portion);
-          completeSignalRefMic = [recordedaudio(1,:),d(1,:)];
-          completeSignalErrorMic= [recordedaudio(2,:),d(2,:)];
+          completeSignalRefMic = [recordedaudio(4,:),d(4,:)];
+          completeSignalErrorMic= [recordedaudio(3,:),d(3,:)];
           cancelledSignal = completeSignalRefMic - cancellerSignal ;
           step = length(completeSignalRefMic);
-          silenceVector = silenceVector1 ;
-       else
-           portion = music(length(recordedaudio)+i*length(d)+1:length(recordedaudio)+(i+1)*length(d));
-           cancellerSignal = filter(data.S1,1,portion);
-%            completeSignalErrorMic= d(2,:);
-           step = length(d);
-           cancelledSignal = d(1,:) - cancellerSignal ;
-           silenceVector = sineNoise(length(recordedaudio)+i*length(d)+1:length(recordedaudio)+(i+1)*length(d)); 
-       end
+     
        
         temporary = filter (data.S2,1,cancelledSignal);
+        sineCancellerSignal2 = filter(data.P,1,cancelledSignal);
         sineCancellerSignal = filter(data.P,1,temporary);
+%         completeSignalErrorMic = filter(h,1,completeSignalErrorMic);
+%         completeSignalErrorMic = completeSignalErrorMic(floor(length(h)/2 + 1):end);
+%         completeSignalErrorMic = [completeSignalErrorMic, zeros(1,length(sineCancellerSignal)- length(completeSignalErrorMic))];
         denoisedSignal = completeSignalErrorMic-sineCancellerSignal ;
-%        
-%        y= portion - sineCancellerSignal;
-%        x =[y;silenceVector];
-%        
-%        PsychPortAudio('RefillBuffer', pahandle, [], x, indexRefillBuffer);
-%        
-%        
-%        i = i+1 ;
-%        indexRefillBuffer = indexRefillBuffer +step +1 ;
+
        
+     
        figure ;
        plot(completeSignalErrorMic);
        hold on 
@@ -162,14 +151,18 @@ filterSize = 1024 ;
        
        
        PsychPortAudio('Close');
-       save('ExperimentWithMusicData30Sine', 'portion','completeSignalRefMic','completeSignalErrorMic');
+       save('ExperimentWithMusicData30SineV2', 'portion','completeSignalRefMic','completeSignalErrorMic');
 
-       pause;
+      
        
        
-   end
+   
 
     PsychPortAudio('Close');
+    save('canceller','sineCancellerSignal2') ;
+    save ('recordedCanceller','sineCancellerSignal')
+    save ('denoisedSignal','denoisedSignal')
+
 
     
     
