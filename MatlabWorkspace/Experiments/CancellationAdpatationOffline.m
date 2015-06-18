@@ -51,10 +51,10 @@ function []=CancellationAdpatationOffline
    
    fs = 32000 ; 
    
- load('RealTimeCancellingExperiment')
+ load('RealTimeCancellingExperiment2')
 
    
-   filters = load('experiment80Filters(1024, 32khz)');
+   filters = load('experiment90Filters(2048, 32khz)');
    
    % Truncate the filter and determine the frameSize 
   % Determine the time of filght in samples to fix the 
@@ -74,7 +74,7 @@ power = (nextpow2(sampleDelay) -1) ;
 frameSize = 2^power    
    
 % Set the filter Size
-filterSize  = 1024 ;
+filterSize  = 2048 ;
 
 % Calculate the number of frames that has to be recorded before the adaptation:
 % We need to record filterSize samples to pass the recorded block to the

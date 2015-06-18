@@ -21,7 +21,7 @@ clear all
 h = firpm(1000, [0 0.001 0.005 1], [0 0 1 1]);
 
 
-experimentName = 'experiment80(16khz).mat';
+experimentName = 'experiment100(8khz).mat';
 %% Initialization of the device and the signals: Generate and Save signals for estimation of S1(z) and S2(z)
 
 
@@ -36,7 +36,7 @@ InitializePsychSound
    dev =   3;
 
 %set the sampling rate to be used
-   fs  =   16000;
+   fs  =   8000;
    
    
    

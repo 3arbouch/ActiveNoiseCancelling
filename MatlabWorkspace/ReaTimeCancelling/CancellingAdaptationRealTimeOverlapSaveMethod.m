@@ -8,13 +8,13 @@ clear all
    InitializePsychSound
    
    % Define the recording time in seconds 
-   recordingTime = 20 ; 
+   recordingTime = 60 ; 
    
-   fs = 32000 ; 
+   fs = 8000 ; 
    
 
    
-   data = load('experiment80Filters(2048, 32khz)');
+   data = load('experiment100Filters(1024, 8khz)');
    
    % Truncate the filter and determine the frameSize 
   % Determine the time of filght in samples to fix the 
@@ -34,7 +34,7 @@ power = (nextpow2(sampleDelay) -1) ;
 frameSize = 2^power    
    
 % Set the filter Size
-filterSize  = 2048 ;
+filterSize  = 1024 ;
 
 % Calculate the number of frames that has to be recorded before the adaptation:
 % We need to record filterSize samples to pass the recorded block to the
@@ -152,8 +152,7 @@ frameSizeSeconds = (frameSize/fs) ;
     end
 
      % Get current position of the headphone buffer
-     status = PsychPortAudio('GetStatus', pahandle);
-     startIndexBuffer = status.ElapsedOutSamples  
+   
     
     
     % Ok, last fetched chunk was above threshold!
@@ -189,9 +188,16 @@ Fblock = 0 ;
  i = 0 ;
  j=0 ; 
   
+ % Get data as the filter has already output 
+%  frameSizeBuffer = startIndexBuffer/fs
+%   [d, ~ ,~ ,~] = PsychPortAudio('GetAudioData', pahandle,[],frameSizeBuffer,frameSizeBuffer,[]);
 
-%      t = startIndexBuffer + samplesTimeOfFlight  ;  
-     t = l2 ; 
+
+%       t = startIndexBuffer + samplesTimeOfFlight  ;  
+%      status = PsychPortAudio('GetStatus', pahandle);
+%      startIndexBuffer = status.ElapsedOutSamples  
+
+      t =   l2 ; 
     filters = zeros(filterSize, 1) ; 
     
  numberOfIterations = ((recordingTime-1)*fs)/frameSize -1 ; 
@@ -219,12 +225,15 @@ while(i<  numberOfIterations)
  y_n = conv(w,d(2,:)) ; 
  
  %update the output vector 
-[output,filtredBlock] =  updateOutput (output, y_n',i*frameSize+1 ) ; 
+[output,filtredBlock] =  updateOutput (output,y_n',i*frameSize+1 ) ; 
 
  %Take the corresconping block & put it in the right position of the
  %headphone buffer
  
  PsychPortAudio('RefillBuffer', pahandle, [], filtredBlock, t );
+ 
+%  [underflow, nextSampleStartIndex, nextSampleETASecs] = PsychPortAudio('FillBuffer', pahandle, filtredBlock , 1, t);
+
 
 j= j+1 ;  
 i = i+1 ; 
@@ -235,7 +244,7 @@ t = t + frameSize ;
     if(j == numberOfFrameBeforeAdaptation)
         % construct the errorSignal 
       
-%      tic
+%       tic
       % perform the filtering with S2 first ;      
       reference (1:filterSize) = pastRefMic2 ; 
       reference(filterSize+1:2*filterSize) = pastRefMic1 ; 
@@ -246,13 +255,13 @@ t = t + frameSize ;
 %       temporary = [pastRefMic1, actualRefMic] ; 
       
       [ W, w ] = FDAFOSMOneIteration( temporary', actualErrorMic', filterSize, P_k, g,k ,W0);
-      filters = [filters, w] ; 
+%        filters = [filters, w] ; 
       pastRefMic2 = pastRefMic1 ; 
       pastRefMic1 = actualRefMic ; 
      
       W0= W ;  
       j = 0 ; 
-%       toc
+%        toc
     end
 
 
@@ -298,12 +307,12 @@ dataCorr = xcorr(completeErrorMic,output);
 [value, index] = max(dataCorr) ; 
 
 delay = index - length(output)
-save('RealTimeCancellingExperiment') ; 
+save('RealTimeCancellingExperimentReportV3') ; 
     
 end
 
 function [outputNew, filtredBlock] = updateOutput( output , y, index )
-output(index: index+ length(y) -1 ) = output(index:index+ length(y) -1 ) + y ;  
+output(index: index+ length(y) -1 ) = output(index:index+ length(y) -1 ) - y ;  
  outputNew = output ; 
  filtredBlock = output(index: index+ length(y) -1 ); 
 end

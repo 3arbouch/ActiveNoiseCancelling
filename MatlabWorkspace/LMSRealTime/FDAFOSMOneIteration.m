@@ -12,7 +12,7 @@ function [W, w ] = FDAFOSMOneIteration( referenceSignal, errorSignal, filterSize
 % W : new calculated Filter in frequency domain 
 
 % Inputs: 
-% referenceSignal: sognal captured at the reference microphone
+% referenceSignal: signal captured at the reference microphone
 % errorSignal = signal captured at the error Microphone 
 % W0 = the old calculated filter
 %  P,g,k : Utility matrices (check FDAFOSM function for more details)
@@ -23,9 +23,8 @@ x = referenceSignal ;
 e = errorSignal ; 
 
  
- alpha= 0.3; 
-
- mu = 0.2 ; 
+  alpha= 0.3; 
+  mu = 0.05  ; 
      
             X_k = fft((x)) ;
 
@@ -34,7 +33,13 @@ e = errorSignal ;
             P_k = (1-alpha)*P_k + alpha*abs((X_k)).^2 ; 
             P_k_inv = 1./P_k ; 
         
-            mu_k = mu *P_k_inv ; 
+%             mu_k = mu*1./((0.001 +abs(X_k).^2));
+%             mu_k = mu*sum(abs(X_k)/filterSize)^-1 *P_k_inv ; 
+%             mu_k = mu*sum(abs(P_k).^2)^-1 *P_k_inv ; 
+%                mu_k = ((sum(abs(P_k).^2)/(length(P_k)))^-1)*P_k_inv ; 
+
+             mu_k = mu*P_k_inv ; 
+
             gradient = (conj(X_k).*E_k) ;
             GRADIENT = g*ifft(mu_k.*gradient);
             W = W0 +  2*fft(GRADIENT) ; 

@@ -2,18 +2,18 @@ function [] = LMSRealTimeOverlapSaveMethod
 %% This script shows how filtering by blocks operates using the overlap save method  
 close all 
 
-data = load ('experiment80Filters(1024, 32khz)');
+data = load ('experiment90Filters(2048, 32khz)');
 
 
 f0= 200 ;
 fs = 32000;
 sineTime = 1 ;
-filterSize  = 1024 ;
+filterSize  = 2048 ;
 time = 0:(1/fs):sineTime - (1/fs) ;
 
 % Define the signal 
 %x= sin(2*pi*f0.*time);
- x =  randn(1,fs*sineTime) ; 
+ x = randn(1,fs*sineTime) ; 
 % mean(x(1:filterSize));
  
 %  x= 0.5*ones(1,fs*sineTime) ;
@@ -90,7 +90,7 @@ for i =0: numberOfOfteration -1
         j 
         i+1
       y_adpt = output((i+1-j)*frameSize+1:(i+1)*frameSize)  ; 
-      e_adpt = y((i-j+1)*frameSize+1:(i+1)*frameSize) - y_adpt ;
+      e_adpt = y((i-j+1)*frameSize+1:(i+1)*frameSize) + y_adpt ;
        
      
       
@@ -111,7 +111,7 @@ end
     
 
 figure ; 
-semilogy(MSerror) ; 
+semilogy(abs(MSerror)) ; 
 title('MSE error') ; 
 
 
@@ -135,7 +135,7 @@ end
 
 %% update the output vector 
 function [outputNew] = updateOutput( output , y, index )
-output(index: index+ length(y) -1 ) = output(index:index+ length(y) -1 ) + y ;  
+output(index: index+ length(y) -1 ) = output(index:index+ length(y) -1 ) - y ;  
  outputNew = output ; 
  
 end

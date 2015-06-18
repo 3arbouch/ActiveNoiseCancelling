@@ -1,22 +1,22 @@
 %% This script is used to estimate and save the filters from the saved experiments
 clear all 
 close all
-data = load('experiment80(16Khz).mat');
+data = load('experiment100(8Khz).mat');
 
 
-experimentName = 'experiment80Filters(4096, 16khz)';
+experimentName = 'experiment100Filters(1024, 8khz)';
 % Size of the estimated filters
-filterSize = 4096 ;
+filterSize = 1024 ;
 blockSize = filterSize ;
 convergenceThreshold = 10^-11 ;
 
-fs = 16000 ;
+fs = 8000 ;
 %% Estimation of s1(z)
 referenceSignal = data.noise' ;
 filtredSignal = data.referenceMic';
 
 numberOfIterations = length(referenceSignal)/filterSize -1 ;
-[ error, MSerror, timeOfConvergence,timeOfComputation,  S1 ] = FDAFOSM( referenceSignal, filtredSignal, filterSize,blockSize,  numberOfIterations, convergenceThreshold );
+[ error, MSerror, timeOfConvergence,timeOfComputation,  S1 ] = FDAFOSM( referenceSignal, filtredSignal, filterSize,  numberOfIterations, convergenceThreshold );
 
 
 
@@ -43,7 +43,7 @@ referenceSignal = data.noise' ;
 filtredSignal = data.errorMic';
 
 numberOfIterations = length(referenceSignal)/filterSize -2 ;
-[ error, MSerror, timeOfConvergence,timeOfComputation,  S2 ] = FDAFOSM( referenceSignal, filtredSignal, filterSize,blockSize,  numberOfIterations, convergenceThreshold );
+[ error, MSerror, timeOfConvergence,timeOfComputation,  S2 ] = FDAFOSM( referenceSignal, filtredSignal, filterSize,  numberOfIterations, convergenceThreshold );
 
 
  
@@ -74,7 +74,7 @@ referenceSignal_prime= filter(S2,1,referenceSignal);
 
 numberOfIterations = length(referenceSignal)/filterSize -5 ;
 % numberOfIterations = 50 ;
-[ error, MSerror, timeOfConvergence,timeOfComputation,  P ] = FDAFOSM( referenceSignal_prime, filtredSignal, filterSize,blockSize,  numberOfIterations, convergenceThreshold );
+[ error, MSerror, timeOfConvergence,timeOfComputation,  P ] = FDAFOSM( referenceSignal_prime, filtredSignal, filterSize,  numberOfIterations, convergenceThreshold );
 
 
 tfplot(P,fs,'P','Estimated headphone filter P(z)')

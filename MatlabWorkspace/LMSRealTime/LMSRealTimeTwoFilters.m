@@ -15,7 +15,7 @@ filterSize  = 2048 ;
 
 time = 0:(1/fs):sineTime - (1/fs) ;
 sine= sin(2*pi*f0.*time);
-noise = 0.1*randn(1,sineTime*fs) ; 
+noise = 0.5*randn(1,sineTime*fs) ; 
 
 
 
