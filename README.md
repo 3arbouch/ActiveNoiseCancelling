@@ -1,6 +1,6 @@
 # README #
 
-We provide a real implementation of an active noise cancellation algorithm in MATLAB.
+We provide an implementation of real time active noise cancellation algorithm for smart glass wearable in MATLAB.
 The algorithm was tested and adapted to work in a real environment. 
 
 The implementation provides principally: 
